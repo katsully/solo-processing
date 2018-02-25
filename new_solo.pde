@@ -4,6 +4,11 @@ import SimpleOpenNI.*;
 
 SimpleOpenNI  kinect;
 
+boolean newRope;
+Rope rope;
+
+//boolean
+
 void setup()
 {
   size(1280, 480);
@@ -26,6 +31,8 @@ void setup()
 
   kinect.enableUser();
   background(0);
+  
+  newRope = true;
 }
 
 void draw()
@@ -41,10 +48,23 @@ void draw()
   {
     if (kinect.isTrackingSkeleton(userList[i]))
       drawSkeleton(userList[i]);
+      PVector jointPos = new PVector();
+      kinect.getJointPositionSkeleton(userList[i],SimpleOpenNI.SKEL_HEAD,jointPos);
+      PVector convertedJoint = new PVector();
+      kinect.convertRealWorldToProjective(jointPos, convertedJoint);
+      if(!newRope) {
+        rope.update(convertedJoint);
+      } else {
+        rope = new Rope(convertedJoint);
+        newRope = false;
+      }
       //drawBody(userList[i]);
   }
   
   image(kinect.rgbImage(), 640, 0);
+  if(rope != null) {
+    rope.display();
+  }
 }
 
 //void drawBody(int userId) {
